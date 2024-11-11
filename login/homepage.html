@@ -1,0 +1,33 @@
+<?php
+// Include the database connection
+include 'connect.php';
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Query with INNER JOIN to get user information and additional details
+$query = "
+    SELECT users.username, users.email, user_details.bio, user_details.profile_picture
+    FROM users
+    INNER JOIN user_details ON users.id = user_details.user_id
+    WHERE users.id = $user_id
+";
+$result = mysqli_query($conn, $query);
+
+if ($result) {
+    $user_info = mysqli_fetch_assoc($result);
+    // Display user information
+    echo "<h1>Welcome, " . $user_info['username'] . "</h1>";
+    echo "<p>Email: " . $user_info['email'] . "</p>";
+    echo "<p>Bio: " . $user_info['bio'] . "</p>";
+    echo "<img src='" . $user_info['profile_picture'] . "' alt='Profile Picture'>";
+} else {
+    echo "Error: " . mysqli_error($conn);
+}
+?>
